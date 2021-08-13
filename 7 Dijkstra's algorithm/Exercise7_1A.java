@@ -1,0 +1,90 @@
+package grokkingalgorithms;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+public class Exercise7_1A {
+
+    private static ArrayList<String> processed = new ArrayList<String>();
+
+    public static void main(String[] args) {
+        HashMap<String, HashMap<String, Double>> graph = new HashMap<>();
+
+        graph.put("start", new HashMap<>());
+        graph.get("start").put("a", 5.0);
+        graph.get("start").put("b", 2.0);
+
+        graph.put("a", new HashMap<>());
+        graph.get("a").put("d", 4.0);
+        graph.get("a").put("c", 2.0);
+
+        graph.put("b", new HashMap<>());
+        graph.get("b").put("a", 8.0);
+        graph.get("b").put("c", 7.0);
+
+        graph.put("c", new HashMap<>());
+        graph.get("c").put("fin", 1.0);
+
+        graph.put("d", new HashMap<>());
+        graph.get("d").put("fin", 3.0);
+        graph.get("d").put("c", 6.0);
+
+        graph.put("fin", new HashMap<>());
+
+        HashMap<String, Double> costs = new HashMap<>();
+        costs.put("a", 5.0);
+        costs.put("b", 2.0);
+        costs.put("c", Double.POSITIVE_INFINITY);
+        costs.put("d", Double.POSITIVE_INFINITY);
+        costs.put("fin", Double.POSITIVE_INFINITY);
+        System.out.println("Cost to go to the finish node: " + costs.get("fin"));
+
+        HashMap<String, String> parents = new HashMap<>();
+        parents.put("a", "start");
+        parents.put("b", "start");
+        parents.put("c", null);
+        parents.put("d", null);
+        parents.put("fin", null);
+
+        String node = findLowestCostNode(costs);
+        while (node != null) {
+            Double cost = costs.get(node);
+            HashMap<String, Double> neighbors = graph.get(node);
+            for (String n : neighbors.keySet()) {
+                Double newCost = cost + neighbors.get(n);
+                if (newCost < costs.get(n)) {
+                    costs.put(n, newCost);
+                    parents.put(n, node);
+                }
+            }
+            processed.add(node);
+            node = findLowestCostNode(costs);
+        }
+
+        System.out.println("Cost to go to the finish node: " + costs.get("fin"));
+        System.out.print("Path to go to the finish node: ");
+
+        String parent = parents.get("fin");
+        System.out.print("fin <-- ");
+        while (parent != "start") {
+            System.out.print(parent + " <-- ");
+            parent = parents.get(parent);
+        }
+        System.out.println("start");
+    }
+
+    private static String findLowestCostNode(HashMap<String, Double> costs) {
+        String lowestCostNode = null;
+        Double lowestCost = Double.POSITIVE_INFINITY;
+        for (HashMap.Entry<String, Double> entry : costs.entrySet()) {
+            String node = entry.getKey();
+            Double cost = entry.getValue();
+            if (cost < lowestCost && !processed.contains(node)) {
+                lowestCost = cost;
+                lowestCostNode = node;
+            }
+        }
+
+        return lowestCostNode;
+    }
+}
